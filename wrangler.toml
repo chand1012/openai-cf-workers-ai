@@ -1,0 +1,6 @@
+name = "openai-cf" # todo
+main = "index.js"
+compatibility_date = "2022-05-03"
+
+[ai]
+binding = "AI" # i.e. available in your Worker on env.AI
