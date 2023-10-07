@@ -9,6 +9,7 @@ Here are all the APIs I would like to implement or have implemented that are cur
 * [x] Completions
 * [x] Chat Completions
 * [x] Audio Transcription
+* [x] Embeddings
 * [ ] Audio Translation
   + Use Whisper to transcribe and Llama 2 to translate.
 * [ ] Moderation
@@ -16,7 +17,6 @@ Here are all the APIs I would like to implement or have implemented that are cur
 
 Here are the APIs that I would like to implement but are not currently possible with the Workers AI platform.
 
-* [ ] Embeddings
 * [ ] Fine Tuning
 * [ ] Files (needed for fine tuning)
 * [ ] Images
@@ -41,7 +41,26 @@ As of 07/10/2023 testing locally does not work. Deployment only takes a few seco
 
 ## Usage
 
-See the [OpenAI API docs](https://platform.openai.com/docs/api-reference/introduction) for more information on the API.
+See the [OpenAI API docs](https://platform.openai.com/docs/api-reference/introduction) for more information on the API. Here's an example from the OpenAI docs:
+
+```bash
+curl https://openai-cf.yourusername.workers.dev/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "@cf/meta/llama-2-7b-chat-int8",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'
+# {"id":"ccfbc7fc-d871-4139-90dc-e6c33fc7f275","model":"@cf/meta/llama-2-7b-chat-int8","created":1696701894,"object":"chat.completion","choices":[{"index":0,"message":{"role":"assistant","content":"Hello there! *adjusts glasses* It's a pleasure to meet you. Is there something I can help you with or would you like to chat? I'm here to assist you in any way I can. 😊"},"finish_reason":"stop"}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}}
+```
 
 If you want to use this with the OpenAI Python or JavaScript SDK, you can use the following code, replace the base URL with your own. For example:
 
