@@ -43,6 +43,26 @@ As of 07/10/2023 testing locally does not work. Deployment only takes a few seco
 
 See the [OpenAI API docs](https://platform.openai.com/docs/api-reference/introduction) for more information on the API.
 
+If you want to use this with the OpenAI Python or JavaScript SDK, you can use the following code, replace the base URL with your own. For example:
+
+```python
+import openai
+openai.api_base = 'https://openai-cf.yourusername.workers.dev/'
+
+# rest of code
+```
+
+```javascript
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+	baseURL: 'https://openai-cf.yourusername.workers.dev/',
+	...
+});
+
+// rest of code
+```
+
 ## Compromises
 
 There were a few compromises I had to make in order to create the API.
