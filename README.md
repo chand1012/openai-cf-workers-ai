@@ -10,8 +10,8 @@ Here are all the APIs I would like to implement or have implemented that are cur
 * [x] Chat Completions
 * [x] Audio Transcription
 * [x] Embeddings
-* [ ] Audio Translation
-  + Use Whisper to transcribe and Llama 2 to translate.
+* [x] Audio Translation
+  + Uses Whisper to transcribe, Llama 2 to identify the language, and m2m-100 to translate.
 * [ ] Moderation
   + Use Llama 2 to classify. May be difficult to prompt engineer.
 
@@ -75,8 +75,8 @@ openai.api_base = 'https://openai-cf.yourusername.workers.dev/'
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-	baseURL: 'https://openai-cf.yourusername.workers.dev/',
-	...
+    baseURL: 'https://openai-cf.yourusername.workers.dev/',
+    ...
 });
 
 // rest of code
