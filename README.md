@@ -24,6 +24,7 @@ Here are all the APIs I would like to implement or have implemented that are cur
 * [ ] Assistants
   + [ ] Assistants
     - Store assistants in a D1 database.
+    - File support may be just limited to text files if there is any at all.
   + [ ] Threads
     - Use a D1 database to store threads. Relate them to an assistant.
   + [ ] Messages
