@@ -16,14 +16,32 @@ Here are all the APIs I would like to implement or have implemented that are cur
 * [x] Embeddings
 * [x] Audio Translation
   + Uses Whisper to transcribe, Llama 2 to identify the language, and m2m-100 to translate.
-* [ ] Moderation
-  + Use Llama 2 to classify. May be difficult to prompt engineer.
+* [x] Images
+  + [x] Image Generation
+* [ ] Files
+  + Needed for Assistants.
+  + Use a D1 database for metadata, R2 for the actual file.
+* [ ] Assistants
+  + [ ] Assistants
+    - Store assistants in a D1 database.
+  + [ ] Threads
+    - Use a D1 database to store threads. Relate them to an assistant.
+  + [ ] Messages
+    - Store messages in a D1 database. Relate them to a thread.
+  + [ ] Runs
+    - Use a queue to handle runs. Get messages from a D1 database, return results to database.
 
 Here are the APIs that I would like to implement but are not currently possible with the Workers AI platform.
 
 * [ ] Fine Tuning
-* [ ] Files (needed for fine tuning)
 * [ ] Images
+  + [ ] Image Editing
+  + [ ] Image Variants
+
+Here are the APIs that could probably be implemented but I don't have the need to implement them.
+
+* [ ] Moderation
+  + Use Llama 2 to classify. May be difficult to prompt engineer.
 
 ## Deploying
 
@@ -38,10 +56,18 @@ Then, install the dependencies and deploy to your account. If you are not logged
 
 ```bash
 yarn
+yarn init-prod # only needs run the first time!!!
 yarn deploy
 ```
 
-As of 07/10/2023 testing locally does not work. Deployment only takes a few seconds, so it is recommended to deploy and test on the deployed worker.
+As of 07/10/2023 testing locally does not work. However, you can test remotely using the following command:
+
+```bash
+yarn init-dev # only needs run the first time!!!
+yarn dev
+```
+
+This will start a local server that will proxy requests to your deployed API. You can then use the API as you normally would, but with the local server's URL instead of the deployed URL.
 
 ## Usage
 
@@ -91,8 +117,6 @@ const openai = new OpenAI({
 There were a few compromises I had to make in order to create the API.
 
 The first is that the API does not count tokens, and will always return zero for the `usage` attribute in the return object. It will always return it for compatibility reasons, but until tokenization is added for the respective model, we cannot count tokens. Each model tokenizes differently, so we can't use tiktoken. It may be possible to tokenize using HuggingFace transformers, but that may take too long and not allow free users to deploy the API. More investigation is needed.
-
-The second is the model selection. If you look in the code, you'll notice its commented out. In the future Cloudflare will be adding the ability to use different models with the API, but for now to keep it simple it will always use the only available model. Once more models are added, the API will be updated to allow for model selection.
 
 Stop tokens are also non-functional. There is no way to specify a stop reason or token with the current API. It will be ignored.
 

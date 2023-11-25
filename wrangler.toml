@@ -1,6 +1,17 @@
-name = "openai-cf" # todo
+name = "openai-cf"                # todo
 main = "index.js"
 compatibility_date = "2022-05-03"
 
 [ai]
 binding = "AI" # i.e. available in your Worker on env.AI
+
+[[r2_buckets]]
+binding = "IMAGE_BUCKET"
+bucket_name = "openai-cf-images"
+preview_bucket_name = "ai-images"
+
+# replace this with your own
+# [[d1_databases]]
+# binding = "DB"                                       # i.e. available in your Worker on env.DB
+# database_name = "openai-cf"
+# database_id = "50960cba-1fb4-4727-b39e-f279051ba285"
