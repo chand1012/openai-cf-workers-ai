@@ -1,4 +1,5 @@
 import { Ai } from '@cloudflare/ai';
+import { estimateTokens } from '../utils/tokens';
 
 export const completionHandler = async (request, env) => {
 	const ai = new Ai(env.AI);
@@ -23,8 +24,10 @@ export const completionHandler = async (request, env) => {
 					}
 				}
 			}
+			const prompt_tokens = estimateTokens(json.prompt);
 			// for now, nothing else does anything. Load the ai model.
 			const aiResp = await ai.run(model, { prompt: json.prompt });
+			const completion_tokens = estimateTokens(aiResp.response);
 			return Response.json({
 				id: uuid,
 				model,
@@ -39,9 +42,9 @@ export const completionHandler = async (request, env) => {
 					},
 				],
 				usage: {
-					prompt_tokens: 0,
-					completion_tokens: 0,
-					total_tokens: 0,
+					prompt_tokens,
+					completion_tokens,
+					total_tokens: prompt_tokens + completion_tokens,
 				},
 			});
 		}

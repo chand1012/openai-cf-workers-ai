@@ -1,5 +1,7 @@
 import { Ai } from '@cloudflare/ai';
 
+import { estimateTokens } from '../utils/tokens';
+
 export const chatHandler = async (request, env) => {
 	const ai = new Ai(env.AI);
 	let model = '@cf/mistral/mistral-7b-instruct-v0.1';
@@ -26,8 +28,15 @@ export const chatHandler = async (request, env) => {
 					messages = json.messages;
 				}
 			}
+			let prompt_tokens = 0;
+			messages.forEach(message => {
+				if (typeof message.content === 'string') {
+					prompt_tokens += estimateTokens(message.content);
+				}
+			});
 			// for now, nothing else does anything. Load the ai model.
 			const aiResp = await ai.run(model, { messages });
+			const completion_tokens = estimateTokens(aiResp.response);
 			return Response.json({
 				id: uuid,
 				model,
@@ -44,9 +53,9 @@ export const chatHandler = async (request, env) => {
 					},
 				],
 				usage: {
-					prompt_tokens: 0,
-					completion_tokens: 0,
-					total_tokens: 0,
+					prompt_tokens,
+					completion_tokens,
+					total_tokens: prompt_tokens + completion_tokens,
 				},
 			});
 		}
