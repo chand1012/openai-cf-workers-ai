@@ -6,6 +6,13 @@ import { completionHandler } from './routes/completion';
 import { embeddingsHandler } from './routes/embeddings';
 import { transcriptionHandler, translationHandler } from './routes/audio';
 import { getImageHandler, imageGenerationHandler } from './routes/image';
+import {
+	getThreadHandler,
+	insertThreadHandler,
+	modifyThreadHandler,
+	deleteThreadHandler,
+} from './routes/thread';
+import { getMessagesHandler, listMessagesHandler } from './routes/messages';
 
 // Create a new router
 const router = Router();
@@ -28,6 +35,18 @@ router.post('/audio/translations', translationHandler);
 router.post('/images/generations', imageGenerationHandler);
 
 router.get('/images/get/:name', getImageHandler);
+
+router.post('/threads', insertThreadHandler);
+
+router.get('/threads/:id', getThreadHandler);
+
+router.post('/threads/:id', modifyThreadHandler);
+
+router.delete('/threads/:id', deleteThreadHandler);
+
+router.get('/threads/:thread_id/messages', listMessagesHandler);
+
+router.get('/threads/:thread_id/messages/:id', getMessagesHandler);
 
 // 404 for everything else
 router.all('*', () => new Response('404, not found!', { status: 404 }));

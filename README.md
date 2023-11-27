@@ -6,6 +6,10 @@
 
 I think that in the near future, smaller, cheaper LLMs will be a legitimate competitor to OpenAI's GPT-3.5 and GPT-4 APIs. Most developers will not want to rewrite their entire codebase in order to use these up-and-coming models. I also think that Cloudflare Workers are a neat way to host AI and APIs, so I implemented the OpenAI API on Workers AI. This allows developers to use the OpenAI SDKs with the new LLMs without having to rewrite all of their code. This code, as is Workers AI, is not production ready but will be semi-regularly updated with new features as they roll out to Workers AI.
 
+## How?
+
+By using all the tools available on Cloudflare of course! The API is written in pure, Workers-compatible Javascript to minimize dependency overhead. Any of the supported [Text Generation LLMs](https://developers.cloudflare.com/workers-ai/models/text-generation/#available-embedding-models) can be used in place of GPT-3.5 and GPT-4. Any supported [Text-to-Image](https://developers.cloudflare.com/workers-ai/models/text-to-image/#available-embedding-models) can be used in place of the Dall-e models. OpenAI's open source Whisper model is used to perform [Automatic Speech Recognition](https://developers.cloudflare.com/workers-ai/models/speech-recognition/). Cloudflare's [R2](https://developers.cloudflare.com/r2/) is used for image file storage, and will be used for user file uploads when implemented. [D1](https://developers.cloudflare.com/d1/) is used as a base database solution, and [Vectorize](https://developers.cloudflare.com/vectorize/), the builtin [AI Embeddings](https://developers.cloudflare.com/vectorize/get-started/embeddings/#5-write-code-in-your-worker), and D1 will be used anywhere we need a vector database.
+
 ## Compatibility
 
 Here are all the APIs I would like to implement or have implemented that are currently possible with the Workers AI platform.
@@ -19,29 +23,33 @@ Here are all the APIs I would like to implement or have implemented that are cur
 * [x] Images
   + [x] Image Generation
 * [ ] Files
-  + Needed for Assistants.
+  + Needed for some of the tools used in assistants.
   + Use a D1 database for metadata, R2 for the actual file.
 * [ ] Assistants
   + [ ] Assistants
     - Store assistants in a D1 database.
-    - File support may be just limited to text files if there is any at all.
-  + [ ] Threads
+    - File support may be just limited to text files for the initial MVP. Need to find a good OCR solution that can run on Workers and is free/cheap.
+  + [x] Threads
     - Use a D1 database to store threads. Relate them to an assistant.
   + [ ] Messages
     - Store messages in a D1 database. Relate them to a thread.
   + [ ] Runs
     - Use a queue to handle runs. Get messages from a D1 database, return results to database.
+  + [ ] Tools
+    - [ ] Retrieval tool. Needs Files.
+    - [ ] Code Interpreter. Needs Files.
+    - [ ] Custom Functions.
 
 Here are the APIs that I would like to implement but are not currently possible with the Workers AI platform.
 
-* [ ] Fine Tuning
-* [ ] Images
-  + [ ] Image Editing
-  + [ ] Image Variants
+* Fine Tuning
+* Images
+  + Image Editing
+  + Image Variants
 
-Here are the APIs that could probably be implemented but I don't have the need to implement them.
+Here are the APIs that could probably be implemented but I don't have the need to implement them. If anyone else would like to attempt to implement them, feel free to open a PR.
 
-* [ ] Moderation
+* Moderation
   + Use Llama 2 to classify. May be difficult to prompt engineer.
 
 ## Deploying
@@ -117,11 +125,11 @@ const openai = new OpenAI({
 
 There were a few compromises I had to make in order to create the API.
 
-The first is that the API does not count tokens, and will always return zero for the `usage` attribute in the return object. It will always return it for compatibility reasons, but until tokenization is added for the respective model, we cannot count tokens. Each model tokenizes differently, so we can't use tiktoken. It may be possible to tokenize using HuggingFace transformers, but that may take too long and not allow free users to deploy the API. More investigation is needed.
+The first is that the API does not count tokens properly, and uses a rough estimate of 4 characters per token to guess how many tokens are in the prompt. There is no way to count tokens with the current API, so this estimation will have to do until we can count tokens properly. This estimation works for most cases where a Llama 2-style or derivative model is used.
 
 Stop tokens are also non-functional. There is no way to specify a stop reason or token with the current API. It will be ignored.
 
-Finally, for simplicity's sake, there is no API key functionality. Because the current rate limits (as of 07/10/2023) are rather strict for Cloudflare AI anyways, I decided not to count or limit requests. In the future when we can count tokens this may change, or we may limit per request instead of per token.
+Finally, for simplicity's sake, there is no API key functionality. Because the current rate limits (as of 07/10/2023) are rather strict for Cloudflare AI anyways, I decided not to count or limit requests. In the future when we can count tokens this may change, or we may limit per request instead of per token. This will be determined in the future when we have proper public pricing for Workers AI.
 
 ## License
 
