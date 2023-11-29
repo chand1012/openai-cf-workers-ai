@@ -1,5 +1,6 @@
 import { Router } from 'itty-router';
 
+import queue from './queue';
 // import the routes
 import { chatHandler } from './routes/chat';
 import { completionHandler } from './routes/completion';
@@ -26,6 +27,7 @@ import {
 	listAssistantsHandler,
 	modifyAssistantHandler,
 } from './routes/assistants';
+import { createRunHandler, listRunsHandler, getRunHandler, modifyRunHandler } from './routes/runs';
 
 // Create a new router
 const router = Router();
@@ -78,9 +80,18 @@ router.post('/assistants/:id', modifyAssistantHandler);
 
 router.delete('/assistants/:id', deleteAssistantHandler);
 
+router.post('/threads/:thread_id/runs', createRunHandler);
+
+router.get('/threads/:thread_id/runs', listRunsHandler);
+
+router.get('/threads/:thread_id/runs/:id', getRunHandler);
+
+router.post('/threads/:thread_id/runs/:id', modifyRunHandler);
+
 // 404 for everything else
 router.all('*', () => new Response('404, not found!', { status: 404 }));
 
 export default {
 	fetch: router.handle,
+	queue,
 };

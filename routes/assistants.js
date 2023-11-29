@@ -6,7 +6,7 @@ const GET_QUERY = 'SELECT * FROM assistants WHERE id = ?';
 const UPDATE_QUERY =
 	'UPDATE assistants SET model = ?, name = ?, description = ?, instructions = ?, tools = ?, file_ids = ?, metadata = ? WHERE id = ?';
 
-const dbAssistantToResponse = assistant => {
+export const dbAssistantToResponse = assistant => {
 	// convert the id to a string
 	assistant.id = assistant.id.toString();
 	// object type "assistant"

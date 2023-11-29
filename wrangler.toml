@@ -14,8 +14,17 @@ preview_bucket_name = "ai-images"
 [[d1_databases]]
 binding = "DB"                                       # i.e. available in your Worker on env.DB
 database_name = "openai-cf"
-database_id = "6608f266-33ad-43b0-a017-27683cd6fcb1"
+database_id = "89548016-eedc-47dd-9205-21d94f8cb5c9"
 
 [[vectorize]]
 binding = "VECTORIZE_INDEX"   # available within your Worker on env.VECTORIZE_INDEX
 index_name = "messages-index"
+
+[[queues.producers]]
+queue = "assistant-runs"
+binding = "QUEUE"
+
+[[queues.consumers]]
+queue = "assistant-runs"
+max_batch_size = 1
+max_batch_timeout = 30
