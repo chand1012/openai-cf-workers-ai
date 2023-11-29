@@ -16,6 +16,7 @@ import {
 	createMessage,
 	getMessagesHandler,
 	listMessagesHandler,
+	searchMessages,
 	updateMessage,
 } from './routes/messages';
 import {
@@ -59,6 +60,9 @@ router.delete('/threads/:id', deleteThreadHandler);
 router.get('/threads/:thread_id/messages', listMessagesHandler);
 
 router.post('/threads/:thread_id/messages', createMessage);
+
+// this is for debugging but could be useful for some other use cases
+router.post('/threads/:thread_id/messages/search', searchMessages);
 
 router.get('/threads/:thread_id/messages/:id', getMessagesHandler);
 

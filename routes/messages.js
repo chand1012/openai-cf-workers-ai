@@ -1,3 +1,6 @@
+import { Ai } from '@cloudflare/ai';
+import { chunkBGE } from '../utils/tokens';
+
 const GET_QUERY = 'SELECT * FROM messages WHERE id = ? AND thread_id = ?';
 // newest first
 const LIST_QUERY = 'SELECT * FROM messages WHERE thread_id = ? ORDER BY id DESC';
@@ -63,11 +66,8 @@ export const listMessagesHandler = async (request, env) => {
 	return Response.json({ error: 'unable to get messages' }, { status: 500 });
 };
 
-export const createMessage = async (request, env) => {
-	const { params } = request;
-	const { thread_id } = params;
+export const newMessage = async (thread_id, data, env) => {
 	const db = await env.DB;
-	const data = await request.json();
 	let { role, content, metadata, file_ids } = data;
 	metadata = metadata ? JSON.stringify(metadata) : '{}';
 	file_ids = file_ids ? JSON.stringify(file_ids) : '[]';
@@ -77,10 +77,42 @@ export const createMessage = async (request, env) => {
 		.run();
 	if (resp.success) {
 		const lastRow = await db.prepare(GET_LATEST_MESSAGE_QUERY).bind(thread_id).first();
-		return Response.json(dbMessageToResponseMessage(lastRow), { status: 201 });
+		await handleVectorization(lastRow, env);
+		return lastRow;
 	}
 
+	return null;
+};
+
+export const createMessage = async (request, env) => {
+	const { params } = request;
+	const { thread_id } = params;
+	const data = await request.json();
+	const dbMessage = await newMessage(thread_id, data, env);
+	if (dbMessage) {
+		return Response.json(dbMessageToResponseMessage(dbMessage), { status: 201 });
+	}
 	return Response.json({ error: 'unable to insert message' }, { status: 500 });
+};
+
+const handleVectorization = async (message, env) => {
+	const ai = new Ai(env.AI);
+	const vectorize = env.VECTORIZE_INDEX;
+
+	const chunks = chunkBGE(message.content);
+
+	const resp = await ai.run('@cf/baai/bge-base-en-v1.5', {
+		text: chunks,
+	});
+
+	const vectors = resp.data.map((v, i) => {
+		return {
+			id: `${message.id}-${i}`,
+			values: v,
+		};
+	});
+
+	await vectorize.upsert(vectors);
 };
 
 export const updateMessage = async (request, env) => {
@@ -97,4 +129,33 @@ export const updateMessage = async (request, env) => {
 	}
 
 	return Response.json({ error: 'unable to update message' }, { status: 500 });
+};
+
+export const searchMessages = async (request, env) => {
+	const { params } = request;
+	const { thread_id } = params;
+	const data = await request.json();
+	const { query } = data;
+
+	const ai = new Ai(env.AI);
+	const vectorize = env.VECTORIZE_INDEX;
+	const db = await env.DB;
+
+	const queryVectorResp = await ai.run('@cf/baai/bge-base-en-v1.5', {
+		text: [query],
+	});
+
+	const queryVector = queryVectorResp.data[0];
+
+	const { matches } = await vectorize.query(queryVector, {
+		topK: 1,
+	});
+
+	// get the message id from the match
+	const match = matches[0];
+	// split on the dash
+	const [message_id] = match.vectorId.split('-');
+	// get the message
+	const message = await db.prepare(GET_QUERY).bind(message_id, thread_id).first();
+	return Response.json(dbMessageToResponseMessage(message));
 };

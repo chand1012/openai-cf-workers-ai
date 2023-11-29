@@ -1,6 +1,9 @@
+import { chunkBGE } from '../utils/tokens';
+import { newMessage } from './messages';
+
 const INSERT_QUERY = 'INSERT INTO threads (metadata) VALUES (?)';
 const GET_LAST_ID_QUERY = 'SELECT * FROM threads ORDER BY id DESC LIMIT 1';
-const INSERT_MESSAGES = 'INSERT INTO messages (thread_id, role, content) VALUES (?, ?, ?)';
+
 const DELETE_QUERY = 'DELETE FROM threads WHERE id = ?';
 const DELETE_MESSAGES_QUERY = 'DELETE FROM messages WHERE thread_id = ?';
 const GET_QUERY = 'SELECT * FROM threads WHERE id = ?';
@@ -26,7 +29,6 @@ export const insertThreadHandler = async (request, env) => {
 	let metadata = {};
 	try {
 		const data = await request.json();
-		console.log(data);
 		messages = data.messages || [];
 		metadata = data.metadata || {};
 	} catch (e) {
@@ -36,19 +38,23 @@ export const insertThreadHandler = async (request, env) => {
 	if (metadata) {
 		metadata_str = JSON.stringify(metadata);
 	}
-	const db = await env.DB;
-	const resp = await db.prepare(INSERT_QUERY).bind(metadata_str).all();
-	if (resp.success) {
-		// query for the most recent row
-		let lastRow = await db.prepare(GET_LAST_ID_QUERY).first();
-		if (messages.length > 0) {
-			const stmts = messages.map(message => {
-				return db.prepare(INSERT_MESSAGES).bind(lastRow.id, message.role, message.content);
-			});
-			await db.batch(stmts);
-		}
+	try {
+		const db = await env.DB;
+		const resp = await db.prepare(INSERT_QUERY).bind(metadata_str).all();
+		if (resp.success) {
+			// query for the most recent row
+			let lastRow = await db.prepare(GET_LAST_ID_QUERY).first();
+			if (messages.length > 0) {
+				const messagePromises = messages.map(message => {
+					return newMessage(lastRow.id, message, env);
+				});
+				await Promise.all(messagePromises);
+			}
 
-		return Response.json(dbThreadToResponseThread(lastRow), { status: 201 });
+			return Response.json(dbThreadToResponseThread(lastRow), { status: 201 });
+		}
+	} catch (e) {
+		console.log(e);
 	}
 
 	return Response.json({ error: 'unable to insert thread' }, { status: 500 });
@@ -83,7 +89,9 @@ export const deleteThreadHandler = async (request, env) => {
 	const { params } = request;
 	const { id } = params;
 	const db = await env.DB;
-	// first, delete all messages
+	// first, get all messages associated with this thread
+	const messages = await db.prepare('SELECT * FROM messages WHERE thread_id = ?').bind(id).all();
+	await deleteMessageVectors(messages.results, env);
 	const msg_resp = await db.prepare(DELETE_MESSAGES_QUERY).bind(id).run();
 	if (!msg_resp.success) {
 		return Response.json({ error: 'unable to delete thread' }, { status: 500 });
@@ -95,4 +103,15 @@ export const deleteThreadHandler = async (request, env) => {
 	}
 
 	return Response.json({ error: 'unable to delete thread' }, { status: 500 });
+};
+
+const deleteMessageVectors = async (messages, env) => {
+	const vectorIds = messages
+		.map(msg => {
+			const chunks = chunkBGE(msg.content);
+			return chunks.map((_, i) => `${msg.id}-${i}`);
+		})
+		.flat();
+
+	await env.VECTORIZE_INDEX.deleteByIds(vectorIds);
 };

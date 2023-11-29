@@ -15,7 +15,11 @@ By using all the tools available on Cloudflare of course! The API is written in 
 Here are all the APIs I would like to implement or have implemented that are currently possible with the Workers AI platform.
 
 * [x] Completions
+  + [ ] Streaming
+  + [x] Non-Streaming
 * [x] Chat Completions
+  + [ ] Streaming
+  + [x] Non-Streaming
 * [x] Audio Transcription
 * [x] Embeddings
 * [x] Audio Translation
@@ -26,13 +30,15 @@ Here are all the APIs I would like to implement or have implemented that are cur
   + Needed for some of the tools used in assistants.
   + Use a D1 database for metadata, R2 for the actual file.
 * [ ] Assistants
-  + [ ] Assistants
+  + **Note**: Requires a paid Workers account to use.
+  + [x] Assistants
     - Store assistants in a D1 database.
     - File support is a work in progress and will be just limited to text files for the initial MVP. Need to find a good OCR solution that can run on Workers and is free/cheap.
   + [x] Threads
     - Use a D1 database to store threads. Relate them to an assistant.
   + [ ] Messages
     - Store messages in a D1 database. Relate them to a thread.
+    - Messages also get embedded and stored in Vectorize for later use. Referenced by D1 ID.
   + [ ] Runs
     - Use a queue to handle runs. Get messages from a D1 database, return results to database.
   + [ ] Tools

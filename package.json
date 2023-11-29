@@ -6,7 +6,7 @@
 		"deploy": "wrangler deploy index.js",
 		"dev": "wrangler dev index.js --remote",
 		"init-dev": "wrangler r2 bucket create ai-images",
-		"init-db": "wrangler d1 create openai-cf",
+		"init-db": "wrangler d1 create openai-cf && wrangler d1 execute openai-cf --file=./schema.sql",
 		"init-prod": "wrangler r2 bucket create openai-cf",
 		"start-stackblitz": "WRANGLER_SEND_METRICS=false wrangler dev index.js --local",
 		"test": "vitest"
