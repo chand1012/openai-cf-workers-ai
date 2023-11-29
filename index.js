@@ -18,6 +18,13 @@ import {
 	listMessagesHandler,
 	updateMessage,
 } from './routes/messages';
+import {
+	createAssistantHandler,
+	deleteAssistantHandler,
+	getAssistantHandler,
+	listAssistantsHandler,
+	modifyAssistantHandler,
+} from './routes/assistants';
 
 // Create a new router
 const router = Router();
@@ -56,6 +63,16 @@ router.post('/threads/:thread_id/messages', createMessage);
 router.get('/threads/:thread_id/messages/:id', getMessagesHandler);
 
 router.post('/threads/:thread_id/messages/:id', updateMessage);
+
+router.post('/assistants', createAssistantHandler);
+
+router.get('/assistants', listAssistantsHandler);
+
+router.get('/assistants/:id', getAssistantHandler);
+
+router.post('/assistants/:id', modifyAssistantHandler);
+
+router.delete('/assistants/:id', deleteAssistantHandler);
 
 // 404 for everything else
 router.all('*', () => new Response('404, not found!', { status: 404 }));

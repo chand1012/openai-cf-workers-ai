@@ -28,7 +28,7 @@ Here are all the APIs I would like to implement or have implemented that are cur
 * [ ] Assistants
   + [ ] Assistants
     - Store assistants in a D1 database.
-    - File support may be just limited to text files for the initial MVP. Need to find a good OCR solution that can run on Workers and is free/cheap.
+    - File support is a work in progress and will be just limited to text files for the initial MVP. Need to find a good OCR solution that can run on Workers and is free/cheap.
   + [x] Threads
     - Use a D1 database to store threads. Relate them to an assistant.
   + [ ] Messages
@@ -64,16 +64,19 @@ cd openai-cf-workers-ai
 Then, install the dependencies and deploy to your account. If you are not logged in to wrangler, you will be prompted to log in.
 
 ```bash
-yarn
-yarn init-prod # only needs run the first time!!!
-yarn deploy
+npm i
+npm run init-prod # only needs run the first time!!!
+npm run init-db # copy the output TOML and replace the [[d1_databases]] section in the wrangler.toml file with it
+npm run deploy
 ```
 
 As of 07/10/2023 testing locally does not work. However, you can test remotely using the following command:
 
 ```bash
-yarn init-dev # only needs run the first time!!!
-yarn dev
+npm i
+npm run init-dev # only needs run the first time!!!
+npm run init-db # copy the output TOML and replace the [[d1_databases]] section in the wrangler.toml file with it
+npm run dev
 ```
 
 This will start a local server that will proxy requests to your deployed API. You can then use the API as you normally would, but with the local server's URL instead of the deployed URL.
