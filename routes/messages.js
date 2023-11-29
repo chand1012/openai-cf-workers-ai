@@ -3,6 +3,9 @@ const GET_QUERY = 'SELECT * FROM messages WHERE id = ? AND thread_id = ?';
 const LIST_QUERY = 'SELECT * FROM messages WHERE thread_id = ? ORDER BY id DESC';
 const INSERT_QUERY =
 	'INSERT INTO messages (thread_id, role, content, metadata, file_ids) VALUES (?, ?, ?, ?, ?)';
+const GET_LATEST_MESSAGE_QUERY =
+	'SELECT * FROM messages WHERE thread_id = ? ORDER BY id DESC LIMIT 1';
+const UPDATE_MESSAGE = 'UPDATE messages SET metadata = ? WHERE id = ? AND thread_id = ?';
 
 const dbMessageToResponseMessage = dbMessage => {
 	// convert the date to epoch seconds
@@ -58,4 +61,40 @@ export const listMessagesHandler = async (request, env) => {
 	}
 
 	return Response.json({ error: 'unable to get messages' }, { status: 500 });
+};
+
+export const createMessage = async (request, env) => {
+	const { params } = request;
+	const { thread_id } = params;
+	const db = await env.DB;
+	const data = await request.json();
+	let { role, content, metadata, file_ids } = data;
+	metadata = metadata ? JSON.stringify(metadata) : '{}';
+	file_ids = file_ids ? JSON.stringify(file_ids) : '[]';
+	const resp = await db
+		.prepare(INSERT_QUERY)
+		.bind(thread_id, role, content, metadata, file_ids)
+		.run();
+	if (resp.success) {
+		const lastRow = await db.prepare(GET_LATEST_MESSAGE_QUERY).bind(thread_id).first();
+		return Response.json(dbMessageToResponseMessage(lastRow), { status: 201 });
+	}
+
+	return Response.json({ error: 'unable to insert message' }, { status: 500 });
+};
+
+export const updateMessage = async (request, env) => {
+	const { params } = request;
+	const { id, thread_id } = params;
+	const db = await env.DB;
+	const data = await request.json();
+	const { metadata } = data;
+	const metadata_str = JSON.stringify(metadata);
+	const resp = await db.prepare(UPDATE_MESSAGE).bind(metadata_str, id, thread_id).run();
+	if (resp.success) {
+		const updated = await db.prepare(GET_QUERY).bind(id, thread_id).first();
+		return Response.json(dbMessageToResponseMessage(updated));
+	}
+
+	return Response.json({ error: 'unable to update message' }, { status: 500 });
 };

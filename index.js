@@ -12,7 +12,12 @@ import {
 	modifyThreadHandler,
 	deleteThreadHandler,
 } from './routes/thread';
-import { getMessagesHandler, listMessagesHandler } from './routes/messages';
+import {
+	createMessage,
+	getMessagesHandler,
+	listMessagesHandler,
+	updateMessage,
+} from './routes/messages';
 
 // Create a new router
 const router = Router();
@@ -46,7 +51,11 @@ router.delete('/threads/:id', deleteThreadHandler);
 
 router.get('/threads/:thread_id/messages', listMessagesHandler);
 
+router.post('/threads/:thread_id/messages', createMessage);
+
 router.get('/threads/:thread_id/messages/:id', getMessagesHandler);
+
+router.post('/threads/:thread_id/messages/:id', updateMessage);
 
 // 404 for everything else
 router.all('*', () => new Response('404, not found!', { status: 404 }));
