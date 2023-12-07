@@ -1,6 +1,7 @@
 import { Ai } from '@cloudflare/ai';
 
 import { estimateTokens } from '../utils/tokens';
+import streamToString from '../utils/streamToString';
 
 export const chatHandler = async (request, env) => {
 	const ai = new Ai(env.AI);
@@ -35,8 +36,9 @@ export const chatHandler = async (request, env) => {
 				}
 			});
 			// for now, nothing else does anything. Load the ai model.
-			const aiResp = await ai.run(model, { messages });
-			const completion_tokens = estimateTokens(aiResp.response);
+			const aiResp = await ai.run(model, { messages, stream: true });
+			const resp = await streamToString(aiResp);
+			const completion_tokens = estimateTokens(resp);
 			return Response.json({
 				id: uuid,
 				model,
@@ -47,7 +49,7 @@ export const chatHandler = async (request, env) => {
 						index: 0,
 						message: {
 							role: 'assistant',
-							content: aiResp.response,
+							content: resp,
 						},
 						finish_reason: 'stop',
 					},

@@ -9,11 +9,12 @@
 		"init-db": "wrangler d1 create openai-cf && wrangler d1 execute openai-cf --file=./schema.sql",
 		"init-prod": "wrangler r2 bucket create openai-cf",
 		"start-stackblitz": "WRANGLER_SEND_METRICS=false wrangler dev index.js --local",
+		"tail": "wrangler tail",
 		"test": "vitest"
 	},
 	"dependencies": {
-		"@cloudflare/ai": "^1.0.15",
-		"itty-router": "^2.6.1"
+		"@cloudflare/ai": "^1.0.37",
+		"itty-router": "^2.6.6"
 	},
 	"devDependencies": {
 		"vitest": "^0.31.0",

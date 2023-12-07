@@ -1,6 +1,6 @@
 # <h1 align="center">⚡️ OpenAI for Workers AI 🧠</h1>
 
-### <p align="center">Simple, quick, and dirty implementation of OpenAI's API on Cloudflare's new Workers AI platform.</p>
+### <p align="center">Use Llama, Mistral, and Stable Diffusion seamlessly with existing OpenAI powered projects!</p>
 
 ## Why?
 
@@ -132,9 +132,18 @@ const openai = new OpenAI({
 
 ## Compromises
 
+### TLDR
+
+* Token counts are estimates. They are not accurate.
+  + 4 characters per token for LLMs.
+  + 2 tokens per word for Embeddings.
+* Stop tokens are ignored.
+* Each message is limited to 4096 *characters*. This is not the same as tokens.
+* No API keys. Rate limits are not enforced.
+
 There were a few compromises I had to make in order to create the API.
 
-The first is that the API does not count tokens properly, and uses a rough estimate of 4 characters per token to guess how many tokens are in the prompt. There is no way to count tokens with the current API, so this estimation will have to do until we can count tokens properly. This estimation works for most cases where a Llama 2-style or derivative model is used.
+The first is that the API does not count tokens properly, and uses a rough estimate of 4 characters per token to guess how many tokens are in the prompt. Embeddings assumes 2 tokens per word. There is no way to count tokens with the current API, so this estimation will have to do until we can count tokens properly. This estimation works for most cases where a Llama 2-style or derivative model is used. Messages are also limited to 4096 characters each by Cloudflare.
 
 Stop tokens are also non-functional. There is no way to specify a stop reason or token with the current API. It will be ignored.
 

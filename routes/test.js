@@ -18,7 +18,14 @@ export const testHandler = async (request, env) => {
 
 	const ai = new Ai(env.AI);
 
-	const stream = await ai.run(model, { messages, stream: true });
+	let stream;
+
+	try {
+		stream = await ai.run(model, { messages, stream: true });
+	} catch (e) {
+		console.error(e);
+		return new Response(e.message, { status: 500 });
+	}
 
 	return new Response(stream, {
 		headers: {
