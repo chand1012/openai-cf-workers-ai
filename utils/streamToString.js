@@ -1,40 +1,9 @@
-// export default async function streamToString(readableStream) {
-// 	let concatenatedString = '';
-// 	const reader = readableStream.getReader();
-
-// 	// Process each stream chunk
-// 	reader
-// 		.read()
-// 		.then(function processText({ done, value }) {
-// 			if (done) return;
-
-// 			const chunkAsString = new TextDecoder().decode(value);
-// 			if (chunkAsString === '[DONE]') {
-// 				reader.cancel();
-// 				return concatenatedString;
-// 			}
-
-// 			try {
-// 				const data = JSON.parse(chunkAsString);
-// 				concatenatedString += data.response || '';
-// 			} catch (err) {
-// 				throw new Error(`JSON parsing error: ${err.message}`);
-// 			}
-
-// 			// Read the next chunk
-// 			reader.read().then(processText);
-// 		})
-// 		.catch(err => {
-// 			throw new Error(`Stream reading error: ${err.message}`);
-// 		});
-
-// 	// Return the final concatenated string
-// 	await reader.closed;
-// 	return concatenatedString;
-// }
+import { Readable } from 'node:stream';
+import { Buffer } from 'node:buffer';
 
 export default async function streamToString(readableStream) {
 	let concatenatedString = '';
+	let lastChunk = '';
 
 	const nodeReadable = new Readable({
 		async read() {
@@ -56,8 +25,8 @@ export default async function streamToString(readableStream) {
 	});
 
 	for await (const chunk of nodeReadable) {
-		const chunkAsString = chunk.toString();
-
+		const chunkAsString = chunk.toString().replace('data: ', '');
+		// fullResponse += chunkAsString;
 		if (chunkAsString === '[DONE]') {
 			return concatenatedString;
 		}
@@ -65,7 +34,10 @@ export default async function streamToString(readableStream) {
 		// Attempt to parse the chunk as JSON
 		try {
 			const data = JSON.parse(chunkAsString);
-			concatenatedString += data.response || '';
+			if (data.response !== lastChunk) {
+				concatenatedString += data.response || '';
+				lastChunk = data.response;
+			}
 		} catch (err) {
 			// Handle JSON parsing error
 			console.error(`JSON parsing error: ${err.message}`);
@@ -73,6 +45,8 @@ export default async function streamToString(readableStream) {
 			// concatenatedString += chunkAsString;
 		}
 	}
+
+	// console.log(fullResponse);
 
 	return concatenatedString;
 }
