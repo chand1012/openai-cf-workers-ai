@@ -28,6 +28,7 @@ import {
 	modifyAssistantHandler,
 } from './routes/assistants';
 import { createRunHandler, listRunsHandler, getRunHandler, modifyRunHandler } from './routes/runs';
+import { testHandler } from './routes/test';
 
 // Create a new router
 const router = Router();
@@ -87,6 +88,8 @@ router.get('/threads/:thread_id/runs', listRunsHandler);
 router.get('/threads/:thread_id/runs/:id', getRunHandler);
 
 router.post('/threads/:thread_id/runs/:id', modifyRunHandler);
+
+router.get('/test', testHandler);
 
 // 404 for everything else
 router.all('*', () => new Response('404, not found!', { status: 404 }));
