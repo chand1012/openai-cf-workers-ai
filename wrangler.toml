@@ -1,6 +1,6 @@
 name = "openai-cf"                # todo
 main = "index.js"
-compatibility_date = "2022-05-03"
+compatibility_date = "2023-11-21"
 # compatibility_flags = ["nodejs_compat"]
 [ai]
 binding = "AI" # i.e. available in your Worker on env.AI

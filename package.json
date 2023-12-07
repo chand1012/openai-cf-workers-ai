@@ -13,11 +13,11 @@
 		"test": "vitest"
 	},
 	"dependencies": {
-		"@cloudflare/ai": "^1.0.37",
-		"itty-router": "^2.6.6"
+		"@cloudflare/ai": "^1.0.37"
 	},
 	"devDependencies": {
 		"vitest": "^0.31.0",
+		"itty-router": "^2.6.6",
 		"wrangler": "^3.0.0"
 	}
 }
