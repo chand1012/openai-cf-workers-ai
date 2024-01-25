@@ -37,6 +37,23 @@ export const chatHandler = async (request, env) => {
 			});
 			// for now, nothing else does anything. Load the ai model.
 			const aiResp = await ai.run(model, { messages, stream: true });
+			if (json.stream) {
+				// Create a TransformStream
+				const transformer = new TransformStream({
+					transform(chunk, controller) {
+						// Apply transformation to the chunk
+						const transformedChunk = modifyChunk(chunk);
+						controller.enqueue(transformedChunk);
+					},
+				});
+
+				// Pipe the original stream through the TransformStream
+				const transformedStream = aiResp.pipeThrough(transformer);
+
+				return new Response(transformedStream, {
+					headers: { 'Content-Type': 'text/event-stream' },
+				});
+			}
 			const resp = await streamToString(aiResp);
 			const completion_tokens = estimateTokens(resp);
 			return Response.json({
@@ -73,3 +90,21 @@ export const chatHandler = async (request, env) => {
 	// if we get here, return a 400 error
 	return Response.json({ error: 'invalid request' }, { status: 400 });
 };
+
+function modifyChunk(chunk) {
+	const chunkAsString = chunk.toString().replace('data: ', '');
+	if (chunkAsString === '[DONE]') {
+		return '';
+	}
+
+	// Attempt to parse the chunk as JSON
+	try {
+		const data = JSON.parse(chunkAsString);
+		return data.response;
+	} catch (err) {
+		// Handle JSON parsing error
+		console.error(`JSON parsing error: ${err.message}`);
+		// Optionally, you can accumulate non-JSON chunks or handle them differently
+		// concatenatedString += chunkAsString;
+	}
+}
