@@ -44,9 +44,6 @@ export default {
 		router
 			.handle(request)
 
-			// transform unformed responses
-			.then(json)
-
 			// catch any errors
 			.catch(error)
 
