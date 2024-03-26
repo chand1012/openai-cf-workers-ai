@@ -40,12 +40,15 @@ router.get('/images/get/:name', getImageHandler);
 router.all('*', () => new Response('404, not found!', { status: 404 }));
 
 export default {
-	fetch: request =>
+	fetch: (request, env, ctx) =>
 		router
-			.handle(request)
+			.handle(request, env, ctx)
 
 			// catch any errors
-			.catch(error)
+			.catch(e => {
+				console.error(e);
+				return error(e);
+			})
 
 			// add CORS headers to all requests,
 			// including errors
