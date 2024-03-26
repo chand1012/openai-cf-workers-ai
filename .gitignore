@@ -4,3 +4,4 @@
 *.lock
 *.log
 *.mp3
+.wrangler
