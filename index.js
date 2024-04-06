@@ -1,4 +1,4 @@
-import { Router } from 'itty-router';
+import { Router, createCors, error, json } from 'itty-router';
 
 // import the routes
 import { chatHandler } from './routes/chat';
@@ -7,8 +7,15 @@ import { embeddingsHandler } from './routes/embeddings';
 import { transcriptionHandler, translationHandler } from './routes/audio';
 import { getImageHandler, imageGenerationHandler } from './routes/image';
 
+const { preflight, corsify } = createCors();
+
 // Create a new router
 const router = Router();
+
+// CORS, see https://itty.dev/itty-router/cors
+router
+	// embed preflight upstream to handle all OPTIONS requests
+	.all('*', preflight);
 
 // chat completion
 router.post('/chat/completions', chatHandler);
@@ -33,5 +40,17 @@ router.get('/images/get/:name', getImageHandler);
 router.all('*', () => new Response('404, not found!', { status: 404 }));
 
 export default {
-	fetch: router.handle,
+	fetch: (request, env, ctx) =>
+		router
+			.handle(request, env, ctx)
+
+			// catch any errors
+			.catch(e => {
+				console.error(e);
+				return error(e);
+			})
+
+			// add CORS headers to all requests,
+			// including errors
+			.then(corsify),
 };
