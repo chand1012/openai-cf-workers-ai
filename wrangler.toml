@@ -1,8 +1,11 @@
 name = "openai-cf"                # todo
 main = "index.js"
 compatibility_date = "2022-05-03"
-compatibility_flags = [ "transformstream_enable_standard_constructor","streams_enable_constructors"]
 
+compatibility_flags = [
+    "transformstream_enable_standard_constructor",
+    "streams_enable_constructors",
+]
 
 [ai]
 binding = "AI" # i.e. available in your Worker on env.AI
@@ -11,6 +14,10 @@ binding = "AI" # i.e. available in your Worker on env.AI
 binding = "IMAGE_BUCKET"
 bucket_name = "openai-cf-images"
 preview_bucket_name = "ai-images"
+
+[vars]
+ACCESS_TOKEN = "sk-1234567890ASDFGHJKLQWERTYUIOP" # You can set any string value."
+
 
 # replace this with your own
 # [[d1_databases]]

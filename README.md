@@ -53,13 +53,23 @@ git clone https://github.com/chand1012/openai-cf-workers-ai
 cd openai-cf-workers-ai
 ```
 
-Then, install the dependencies and deploy to your account. If you are not logged in to wrangler, you will be prompted to log in.
+Then modify the `ACCESS_TOKEN` variable in the `wrangler.toml` file to secure your API endpoint.
+
+```toml
+[vars]
+ACCESS_TOKEN = "sk-1234567890ASDFGHJKLQWERTYUIOP" # You can set any string value."
+```
+
+Finally, install the dependencies and deploy to your account. If you are not logged in to wrangler, you will be prompted to log in.
 
 ```bash
 yarn
 yarn init-prod # only needs run the first time!!!
 yarn deploy
 ```
+
+
+
 
 As of 07/10/2023 testing locally does not work. However, you can test remotely using the following command:
 
@@ -75,8 +85,9 @@ This will start a local server that will proxy requests to your deployed API. Yo
 See the [OpenAI API docs](https://platform.openai.com/docs/api-reference/introduction) for more information on the API. Here's an example from the OpenAI docs:
 
 ```bash
-curl https://openai-cf.yourusername.workers.dev/chat/completions \
+curl https://openai-cf.yourusername.workers.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <Any string value you set.>" \
   -d '{
     "model": "@cf/meta/llama-2-7b-chat-int8",
     "messages": [
@@ -97,7 +108,7 @@ If you want to use this with the OpenAI Python or JavaScript SDK, you can use th
 
 ```python
 import openai
-openai.api_base = 'https://openai-cf.yourusername.workers.dev/'
+openai.api_base = 'https://openai-cf.yourusername.workers.dev/v1'
 
 # rest of code
 ```
@@ -106,7 +117,7 @@ openai.api_base = 'https://openai-cf.yourusername.workers.dev/'
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-    baseURL: 'https://openai-cf.yourusername.workers.dev/',
+    baseURL: 'https://openai-cf.yourusername.workers.dev/v1',
     ...
 });
 
