@@ -54,7 +54,12 @@ export const chatHandler = async (request, env) => {
 								const content = line.slice('data: '.length);
 								console.log(content);
 								const doneflag = content.trim() == '[DONE]';
-								const data = doneflag ? null : JSON.parse(content);
+								if (doneflag) {
+									controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+									return;
+								}
+
+								const data = JSON.parse(content);
 								const newChunk =
 									'data: ' +
 									JSON.stringify({
@@ -64,9 +69,9 @@ export const chatHandler = async (request, env) => {
 										model,
 										choices: [
 											{
-												delta: { content: doneflag ? '' : data.response },
+												delta: { content: data.response },
 												index: 0,
-												finish_reason: doneflag ? 'stop' : null,
+												finish_reason: null,
 											},
 										],
 									}) +
