@@ -132,8 +132,6 @@ The first is that the API does not count tokens, and will always return zero for
 
 Stop tokens are also non-functional. There is no way to specify a stop reason or token with the current API. It will be ignored.
 
-Finally, for simplicity's sake, there is no API key functionality. Because the current rate limits (as of 07/10/2023) are rather strict for Cloudflare AI anyways, I decided not to count or limit requests. In the future when we can count tokens this may change, or we may limit per request instead of per token.
-
 ## License
 
 Licensed under the [MIT License](LICENSE).

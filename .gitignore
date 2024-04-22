@@ -5,3 +5,4 @@
 *.log
 *.mp3
 .wrangler
+.dev.vars

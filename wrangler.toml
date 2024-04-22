@@ -3,8 +3,8 @@ main = "index.js"
 compatibility_date = "2022-05-03"
 
 compatibility_flags = [
-    "transformstream_enable_standard_constructor",
-    "streams_enable_constructors",
+	"transformstream_enable_standard_constructor",
+	"streams_enable_constructors",
 ]
 
 [ai]
@@ -16,11 +16,4 @@ bucket_name = "openai-cf-images"
 preview_bucket_name = "ai-images"
 
 [vars]
-ACCESS_TOKEN = "sk-1234567890ASDFGHJKLQWERTYUIOP" # You can set any string value."
-
-
-# replace this with your own
-# [[d1_databases]]
-# binding = "DB"                                       # i.e. available in your Worker on env.DB
-# database_name = "openai-cf"
-# database_id = "50960cba-1fb4-4727-b39e-f279051ba285"
+CLOUDFLARE_ACCOUNT_ID = "c8c30db3dddc4ad31065d336368c7905" # replace with your own. 

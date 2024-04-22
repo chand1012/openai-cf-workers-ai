@@ -6,6 +6,7 @@ import { completionHandler } from './routes/completion';
 import { embeddingsHandler } from './routes/embeddings';
 import { transcriptionHandler, translationHandler } from './routes/audio';
 import { getImageHandler, imageGenerationHandler } from './routes/image';
+import { modelsHandler } from './routes/models';
 
 const { preflight, corsify } = createCors();
 
@@ -27,7 +28,7 @@ const bearerAuthentication = (request, env) => {
 	if (!authorizationHeader) {
 		return error(401, 'Unauthorized');
 	}
-	const access_token = extractToken(authorizationHeader)
+	const access_token = extractToken(authorizationHeader);
 	if (env.ACCESS_TOKEN !== access_token) {
 		return error(403, 'Forbidden');
 	}
@@ -44,7 +45,8 @@ router
 	.post('/audio/transcriptions', transcriptionHandler)
 	.post('/audio/translations', translationHandler)
 	.post('/images/generations', imageGenerationHandler)
-	.get('/images/get/:name', getImageHandler);
+	.get('/images/get/:name', getImageHandler)
+	.get('/models', modelsHandler);
 
 // 404 for everything else
 router.all('*', () => new Response('404, not found!', { status: 404 }));
