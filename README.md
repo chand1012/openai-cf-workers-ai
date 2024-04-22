@@ -53,14 +53,14 @@ git clone https://github.com/chand1012/openai-cf-workers-ai
 cd openai-cf-workers-ai
 ```
 
-Then modify the `ACCESS_TOKEN` variable in the `wrangler.toml` file to secure your API endpoint.
+Then modify the `CLOUDFLARE_ACCOUNT_ID` variable in the `wrangler.toml` file to match your Cloudflare Account ID.
 
 ```toml
 [vars]
-ACCESS_TOKEN = "sk-1234567890ASDFGHJKLQWERTYUIOP" # You can set any string value."
+CLOUDFLARE_ACCOUNT_ID = "c8c30db3dddc4ad31065d336368c7905" # replace with your own.
 ```
 
-Finally, install the dependencies and deploy to your account. If you are not logged in to wrangler, you will be prompted to log in.
+Next, install the dependencies and deploy to your account. If you are not logged in to wrangler, you will be prompted to log in.
 
 ```bash
 yarn
@@ -68,8 +68,18 @@ yarn init-prod # only needs run the first time!!!
 yarn deploy
 ```
 
+Finally, set the `ACCESS_TOKEN` and `CLOUDFLARE_API_TOKEN` variables using wrangler. To get your Cloudflare API token, go to the [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens) and create a new token with the `Workers AI` template. `ACCESS_TOKEN` can be any string you want, but I recommend creating a random string with `openssl rand -hex 32` .
 
+```bash
+wrangler secret put ACCESS_TOKEN # put the access token here
+wrangler secret put CLOUDFLARE_API_TOKEN # put the Cloudflare API token here
+```
 
+Now you're ready to use the API! You can find the URL in the output of the `yarn deploy` command.
+
+## Development
+
+Before Testing, copy `.dev.vars.example` to `.dev.vars` and populate the variables with the appropriate values. See [Deploying](#deploying) for more information.
 
 As of 07/10/2023 testing locally does not work. However, you can test remotely using the following command:
 
@@ -130,7 +140,7 @@ There were a few compromises I had to make in order to create the API.
 
 The first is that the API does not count tokens, and will always return zero for the `usage` attribute in the return object. It will always return it for compatibility reasons, but until tokenization is added for the respective model, we cannot count tokens. Each model tokenizes differently, so we can't use tiktoken. It may be possible to tokenize using HuggingFace transformers, but that may take too long and not allow free users to deploy the API. More investigation is needed.
 
-Stop tokens are also non-functional. There is no way to specify a stop reason or token with the current API. It will be ignored.
+Stop tokens are also non-functional. There is no way to specify a stop reason or token with the current API. It will be ignored. Sometimes these stop tokens can leak through to the final response. This is a known issue and will be fixed in the future.
 
 ## License
 
