@@ -16,7 +16,8 @@ export const chatHandler = async (request, env) => {
 			let json = await request.json();
 			// when there is more than one model available, enable the user to select one
 			if (json?.model) {
-				model = json.model;
+				const mapper = env.MODEL_MAPPER ?? {};
+				model = mapper[json.model] ? mapper[json.model] : json.model;
 			}
 			if (json?.messages) {
 				if (Array.isArray(json.messages)) {
