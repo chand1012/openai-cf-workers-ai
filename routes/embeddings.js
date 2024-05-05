@@ -1,7 +1,4 @@
-import { Ai } from '@cloudflare/ai';
-
 export const embeddingsHandler = async (request, env) => {
-	const ai = new Ai(env.AI);
 	let model = '@cf/baai/bge-base-en-v1.5';
 	let error = null;
 
@@ -12,7 +9,7 @@ export const embeddingsHandler = async (request, env) => {
 			// 	model = json.model;
 			// }
 
-			const embeddings = await ai.run(model, {
+			const embeddings = await env.AI.run(model, {
 				text: json.input,
 			});
 

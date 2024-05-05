@@ -1,11 +1,8 @@
-import { Ai } from '@cloudflare/ai';
-
 import { uint8ArrayToBase64 } from '../utils/converters';
 import { uuidv4 } from '../utils/uuid';
 import { streamToBuffer } from '../utils/stream';
 
 export const imageGenerationHandler = async (request, env) => {
-    const ai = new Ai(env.AI);
     let model = '@cf/stabilityai/stable-diffusion-xl-base-1.0';
     let format = 'url';
     let error = null;
@@ -27,7 +24,7 @@ export const imageGenerationHandler = async (request, env) => {
                 prompt: json.prompt,
             };
 
-            const respStream = await ai.run(model, inputs); // Get the response stream
+            const respStream = await env.AI.run(model, inputs); // Get the response stream
             const respBuffer = await streamToBuffer(respStream); // Buffer the stream into memory
 
             if (format === 'b64_json') {
