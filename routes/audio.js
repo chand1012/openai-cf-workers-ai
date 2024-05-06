@@ -1,7 +1,4 @@
-import { Ai } from '@cloudflare/ai';
-
 export const transcriptionHandler = async (request, env) => {
-	const ai = new Ai(env.AI);
 	let model = '@cf/openai/whisper';
 	let error = null;
 	// don't need anything else as openai just gives back text
@@ -17,7 +14,7 @@ export const transcriptionHandler = async (request, env) => {
 			const input = {
 				audio: [...new Uint8Array(blob)],
 			};
-			const resp = await ai.run(model, input);
+			const resp = await env.AI.run(model, input);
 			return Response.json({
 				text: resp.text,
 			});
@@ -47,7 +44,6 @@ function getLanguageId(text) {
 }
 
 export const translationHandler = async (request, env) => {
-	const ai = new Ai(env.AI);
 	let model = '@cf/openai/whisper';
 	let error = null;
 
@@ -62,9 +58,9 @@ export const translationHandler = async (request, env) => {
 			const input = {
 				audio: [...new Uint8Array(blob)],
 			};
-			const resp = await ai.run(model, input);
+			const resp = await env.AI.run(model, input);
 
-			const language_id_resp = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+			const language_id_resp = await env.AI.run('@cf/meta/llama-2-7b-chat-int8', {
 				messages: [
 					{
 						role: 'user',
@@ -78,7 +74,7 @@ export const translationHandler = async (request, env) => {
 				],
 			});
 
-			const translation_resp = await ai.run('@cf/meta/m2m100-1.2b', {
+			const translation_resp = await env.AI.run('@cf/meta/m2m100-1.2b', {
 				text: resp.text,
 				source_lang: getLanguageId(language_id_resp.response),
 				target_lang: 'english',

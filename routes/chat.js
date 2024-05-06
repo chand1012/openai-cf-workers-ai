@@ -1,7 +1,4 @@
-import { Ai } from '@cloudflare/ai';
-
 export const chatHandler = async (request, env) => {
-	const ai = new Ai(env.AI);
 	let model = '@cf/mistral/mistral-7b-instruct-v0.1';
 	let messages = [];
 	let error = null;
@@ -87,7 +84,7 @@ export const chatHandler = async (request, env) => {
 			});
 
 			// for now, nothing else does anything. Load the ai model.
-			const aiResp = await ai.run(model, { stream: json.stream, messages });
+			const aiResp = await env.AI.run(model, { stream: json.stream, messages });
 			// Piping the readableStream through the transformStream
 			return json.stream ? new Response(aiResp.pipeThrough(transformer), {
 				headers: {

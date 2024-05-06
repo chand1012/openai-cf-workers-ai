@@ -1,7 +1,4 @@
-import { Ai } from '@cloudflare/ai';
-
 export const completionHandler = async (request, env) => {
-	const ai = new Ai(env.AI);
 	let model = '@cf/mistral/mistral-7b-instruct-v0.1';
 
 	const created = Math.floor(Date.now() / 1000);
@@ -25,7 +22,7 @@ export const completionHandler = async (request, env) => {
 				}
 			}
 			// for now, nothing else does anything. Load the ai model.
-			const aiResp = await ai.run(model, { prompt: json.prompt });
+			const aiResp = await env.AI.run(model, { prompt: json.prompt });
 			return Response.json({
 				id: uuid,
 				model,

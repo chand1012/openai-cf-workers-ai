@@ -1,11 +1,6 @@
 name = "openai-cf"                # todo
 main = "index.js"
-compatibility_date = "2022-05-03"
-
-compatibility_flags = [
-	"transformstream_enable_standard_constructor",
-	"streams_enable_constructors",
-]
+compatibility_date = "2024-05-06"
 
 [ai]
 binding = "AI" # i.e. available in your Worker on env.AI
